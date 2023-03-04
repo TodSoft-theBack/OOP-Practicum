@@ -17,8 +17,10 @@ int main()
 	std::ifstream reader(RES_FILE);
 	if (!reader.is_open())
 		return -1;
+
 	int sum, diff;
 	reader >> sum >> diff;
+
 	int orgA = (sum + diff)/2, orgB = (sum - diff)/2;
 	reader.close();
 

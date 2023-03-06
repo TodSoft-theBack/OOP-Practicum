@@ -3,6 +3,7 @@
 //unsgined char is equivalent to a byte from 0 to 255
 typedef unsigned char byte;
 
+const size_t MAX_BUFFER_SIZE = 16;
 
 short DigitParse(char symbol)
 {
@@ -58,33 +59,52 @@ namespace Colours {
     void ReadNumbers(std::ifstream& reader, unsigned* numbers, size_t size) {
         for (size_t i = 0; i < size; i++)
         {
-            char buff[16];
-            reader.getline(buff, 16, '|');
-            numbers[i] = IntegerParse(buff, sizeof(size_t));
+            
+            char buff[MAX_BUFFER_SIZE];
+            reader.getline(buff, MAX_BUFFER_SIZE, '|');
+            unsigned digitsCount = strlen(buff);
+            numbers[i] = IntegerParse(buff, digitsCount);
         }
     }
 
-    void GetNumbersCount(std::ifstream& reader, size_t& size) {
-        size_t init_pos = reader.tellg();
-        reader.seekg(0, std::ios::end);
-        size_t pos = reader.tellg();
-        size = (pos + 1)/9;
+    void CountCharsInFile(std::ifstream& reader, size_t& size, char _char) {
+        size_t currentPosition = reader.tellg();
         reader.seekg(0, std::ios::beg);
-        reader.seekg(init_pos);
+
+        if (!reader.is_open())
+            return ;
+
+        while (true)
+        {
+            char current = reader.get();
+            if (reader.eof())
+            {
+                size++;
+                break;
+            }
+
+            if (current == _char)
+                size++;
+        }
+
+        reader.clear();
+        reader.seekg(currentPosition);
     }
 
     Colour* ReadColours(const char* fileName, size_t& count) {
+        const char delim = '|';
         std::ifstream reader(fileName);
         if (!reader.is_open())
             return nullptr;
         
-        GetNumbersCount(reader, count);
+        CountCharsInFile(reader, count, delim);
         unsigned* numbers = new unsigned[count];
         ReadNumbers(reader, numbers, count);
 
         Colour* result = new Colour[count];
         SetColoursByNumber(result, numbers, count);
 
+        delete[] numbers;
         reader.close();
         return result;
     }

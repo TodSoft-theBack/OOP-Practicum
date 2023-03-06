@@ -157,12 +157,13 @@ namespace Establishments
         return sum / count;
     }
 
-    void Swap(int a, int b)
+    void Swap(int& a, int& b)
     {
         int _ = a;
         a = b;
         b = _;
     }
+
     void SortMask(const Employee* employees, size_t count, int* mask)
     {
         for (size_t i = 0; i < count; i++)

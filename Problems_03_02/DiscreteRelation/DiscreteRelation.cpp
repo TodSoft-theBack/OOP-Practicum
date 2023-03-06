@@ -49,9 +49,11 @@ namespace Relations
         writer.close();
         return true;
     }
-    void ReadPair(std::ifstream& reader, Pair& pair)
+    void ReadPair(std::ifstream& reader, Relation& relation)
     {
+        Pair pair;
         reader >> pair.first >> pair.second;
+        AddToRelation(relation, pair);
     }
     Relation* ReadFromFile(const char* fileName)
     {
@@ -63,7 +65,7 @@ namespace Relations
         reader >> relation_size;
         relation->current_size = relation_size;
         for (size_t i = 0; i < relation_size; i++)
-            ReadPair(reader, relation->pairs[i]);
+            ReadPair(reader, *relation);
 
         reader.close();
         return relation;

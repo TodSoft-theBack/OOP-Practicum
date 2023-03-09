@@ -1,2 +1,3 @@
 ﻿  Colours.cpp
+C:\LocalRepos\OOP-Practicum\Problems_03_02\Colours\Colours.cpp(65,48): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
   Colours.vcxproj -> C:\LocalRepos\OOP-Practicum\Problems_03_02\x64\Debug\Colours.exe

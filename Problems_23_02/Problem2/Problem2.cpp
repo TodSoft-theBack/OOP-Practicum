@@ -117,13 +117,18 @@ namespace Establishments
     bool GetMinMaxIndexes(Position pos, const Employee* employees, int& maxIndex, int& minIndex, Criteria criteria)
     {
         minIndex = 0, maxIndex = 0;
-        bool hasEmployees = false;
-        for (size_t i = 1; i < Establishment::MAX_EMPLOYEE_COUNT; i++)
+        int hasEmployees = 0;
+        for (size_t i = 0; i < Establishment::MAX_EMPLOYEE_COUNT; i++)
         {
             if (employees[i].JobPosition != pos)
                 continue;
-            if (!hasEmployees)
-                hasEmployees = true;
+            if (hasEmployees == 0)
+            {
+                minIndex = maxIndex = i;
+                hasEmployees++;
+                continue;
+            }
+            hasEmployees++;
             if (Compare(employees[i], employees[minIndex], criteria) < 0)
                 minIndex = i;
             if (Compare(employees[i], employees[maxIndex], criteria) > 0)
@@ -131,6 +136,7 @@ namespace Establishments
         }
         return hasEmployees;
     }
+
     void PrintMinMax(const Employee* employees, Criteria criteria)
     {
         for (size_t i = 0; i < 4; i++)

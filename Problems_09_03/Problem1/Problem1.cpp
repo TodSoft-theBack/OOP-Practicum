@@ -1,7 +1,10 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 using namespace std;
+
+const char file[] = "users.bin";
 
 size_t GetFileSize(std::ifstream& file)
 {
@@ -34,15 +37,25 @@ struct User {
 	static void Print(const User& user)
 	{
 		cout << user.Username << endl;
-		cout << user.Password << endl;
+		size_t passLen = strlen(user.Password);
+		char placeholder = '*';
+		for (size_t i = 0; i < passLen; i++)
+			cout << placeholder;
+		cout << endl;
 		cout << user.Age << endl;
 		cout << user.Phone << endl;
 	}
-	static void PrintUsers(const User* users, size_t users_count) {
+	static void PrintUsers(const User* users, size_t users_count)
+	{
 		for (size_t i = 0; i < users_count; i++)
 		{
 			if (i > 0)
-				cout << " < ------- >" << endl;
+			{
+				cout << "<";
+				for (size_t i = 0; i < 20; i++)
+					cout << '-';
+				cout << ">" << endl;
+			}
 
 			User::Print(users[i]);
 		}
@@ -87,11 +100,11 @@ struct User {
 		users = nullptr;
 	}
 
-	static bool ContainsUser(const User& user, User* registeredUsers, size_t users_count)
+	static bool ContainsUser(const char* username, User* registeredUsers, size_t users_count)
 	{
 		for (size_t i = 0; i < users_count; i++)
 		{
-			if (strcmp(user.Username, registeredUsers[i].Username) == 0)
+			if (strcmp(username, registeredUsers[i].Username) == 0)
 				return true;
 		}
 		return false;
@@ -128,7 +141,7 @@ struct User {
 
 	static bool ValidateUser(const User& user, User* registeredUsers, size_t users_count)
 	{
-		if (ContainsUser(user, registeredUsers, users_count))
+		if (ContainsUser(user.Username, registeredUsers, users_count))
 			return false;
 		if (strlen(user.Password) < User::MIN_PASSWORD_SIZE)
 			return false;
@@ -160,6 +173,27 @@ struct User {
 			RegisterUser(file, users, users_count);
 		FreeAllocation(users);
 	}
+
+	static void LogIn(const char* username, const char* password)
+	{
+		size_t users_count = 0;
+		User* users = ReadFromFile(file, users_count);
+		for (size_t i = 0; i < users_count; i++)
+		{
+			if (strcmp(username, users[i].Username) == 0)
+			{
+				if (strcmp(password, users[i].Password) == 0)
+				{
+					cout << "Welcome, " << username << "!" << endl;
+					return;
+				}
+				cout << "Wrong password! Try again!" << endl;
+				return;
+			}
+		}
+		cout << "No such user was found!" << endl;
+		FreeAllocation(users);
+	}
 };
 
 
@@ -175,10 +209,50 @@ void CreateBinaryFile(const char* filename)
 
 int main()
 {
-	const char file[] = "users.bin";
 	const char onlyOlder18[] = "adults.bin";
+
 	size_t users_count = 0;
 	User* users = User::ReadFromFile(file, users_count);
+
+	const size_t MAX_BUFFER = 256;
+
+	char command[MAX_BUFFER];
+	do
+	{
+		cin.getline(command, MAX_BUFFER);
+		stringstream processor(command);
+		unsigned age = 0;
+		char username[User::MAX_TEXT_FIELD_SIZE];
+		char password[User::MAX_TEXT_FIELD_SIZE];
+		switch (command[0])
+		{
+			case 'i':
+				User::PrintUsers(users, users_count);
+				break;
+			case 's':
+				processor.ignore(2);
+				
+				processor.getline(username, User::MAX_TEXT_FIELD_SIZE);
+				if (User::ContainsUser(username, users, users_count))
+					cout <<"Username " << username << " already exists!" << endl;
+				else
+					cout << "Username " << username << " is free to use!" << endl;
+				break;
+			case 'f':
+				processor.ignore(2);
+				processor >> age;
+				break;
+			case 'l':
+				processor.ignore(2);
+				processor >> username;
+
+				processor.ignore(MAX_BUFFER, ' ');
+				processor >> password;
+
+				User::LogIn(username, password);
+				break;
+		}
+	} while (strcmp(command, "q") != 0);
 
 	User::FreeAllocation(users);
 }

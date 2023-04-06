@@ -4,26 +4,23 @@
 int main()
 {
 
-	int memeArr[4] =
+	int memeArr[] =
 	{	
-		1, 3,
-		6, 5
+		0, 6
 	};
 
-	Matrix meme(memeArr, 2,2);
+	Matrix meme(memeArr, 1, 2);
 
-	std::cout << meme;
+	std::cout << meme << std::endl;
 
-	int pepeArr[4] =
+	int pepeArr[] =
 	{
-		0, 1,
-		1, 0
+		1,
+		0,
 	};
-	Matrix pepe(pepeArr, 2, 2);
+	Matrix pepe(pepeArr, 2, 1);
 
-	std::cout << pepe;
+	std::cout << pepe << std::endl;
 
-	meme *= pepe;
-
-	std::cout << meme;
+	std::cout << meme * pepe << std::endl;
 }

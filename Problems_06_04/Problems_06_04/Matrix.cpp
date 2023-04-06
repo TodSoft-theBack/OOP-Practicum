@@ -48,7 +48,7 @@ Matrix::Matrix(int array[], size_t rows, size_t columns) : Matrix(rows, columns)
 {
 	for (size_t row = 0; row < _rowSize; row++)
 		for (size_t column = 0; column < _columnSize; column++)
-			container[row][column] = array[row * rows + column];
+			container[row][column] = array[row * (rows - 1) + column];
 }
 
 Matrix::Matrix(const Matrix& copy)
@@ -133,8 +133,18 @@ Matrix operator*(int scalar, const Matrix& rhs)
 
 Matrix operator*(const Matrix& lhs, const Matrix& rhs)
 {
-	Matrix copy(lhs);
-	return copy *= rhs;
+	if (lhs._columnSize != rhs._rowSize)
+		return Matrix();
+	Matrix result(lhs._rowSize, rhs._columnSize);
+	for (size_t row = 0; row < result._rowSize; row++)
+		for (size_t column = 0; column < result._columnSize; column++)
+		{
+			int sum = 0;
+			for (size_t index = 0; index < lhs._columnSize; index++)
+				sum += lhs.container[row][index] * rhs.container[index][column];
+			result[row][column] = sum;
+		}
+	return result;
 }
 
 bool operator==(const Matrix& lhs, const Matrix& rhs)
